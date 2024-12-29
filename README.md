@@ -3,6 +3,7 @@ Tento repozitár obsahuje implementáciu ETL procesu pre Chinook databázu, zame
 # 1. Úvod a popis zdrojových dát
 Cieľ semestrálneho projektu je analyzovať dáta týkajúce sa hudby,poslúchačov a ích nákupov. Táto analýza umožňuje odhaliť trendy v hudobných preferenciách, najobľúbenejšie skladby a správanie zákazníkov.
 Dataset obsahuje:
+
 1.Artist
 Popis: Obsahuje údaje o hudobných interpretoch, napríklad meno interpreta.
 Význam: Slúži na identifikáciu interpretov a prepojenie s albumami, čo umožňuje analýzu populárnosti interpretov.
