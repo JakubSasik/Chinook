@@ -5,6 +5,7 @@ Cieľ semestrálneho projektu je analyzovať dáta týkajúce sa hudby,poslúcha
 Dataset obsahuje:
 
 1.Artist
+
 Popis: Obsahuje údaje o hudobných interpretoch, napríklad meno interpreta.
 Význam: Slúži na identifikáciu interpretov a prepojenie s albumami, čo umožňuje analýzu populárnosti interpretov.
 
