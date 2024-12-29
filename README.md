@@ -55,7 +55,7 @@ ERD diagram
 
 Surové dáta sú usporiadané v relačnom modeli, ktorý je znázornený na entitno-relačnom diagrame (ERD):
 ![Chinook_ERD](https://github.com/user-attachments/assets/de87b1ff-3ea9-4710-92c1-8a377dc0a4be)
-Obrázok 1 Entito-relačná schéma Chinook
++ Obrázok 1 Entito-relačná schéma Chinook
 # 2.Dimenzonálny model
 Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod predstavuje faktová tabuľka fact_sales, ktorá je prepojená s nasledujúcimi dimenziami:
 
@@ -68,5 +68,5 @@ Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod pr
   
 Štruktúra hviezdicového modelu je znázornená na diagrame nižšie. Diagram ukazuje prepojenia medzi faktovou tabuľkou a dimenziami, čo zjednodušuje pochopenie a implementáciu modelu.
 ![Snímka obrazovky 2024-12-29 162831](https://github.com/user-attachments/assets/ecc86996-22e9-4636-b43b-ff19dc5bca01)
-                       
++ Obrázok 2 Schéma hviezdy pre Chinook
 
