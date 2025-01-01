@@ -69,4 +69,6 @@ Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod pr
 Štruktúra hviezdicového modelu je znázornená na diagrame nižšie. Diagram ukazuje prepojenia medzi faktovou tabuľkou a dimenziami, čo zjednodušuje pochopenie a implementáciu modelu.
 ![Snímka obrazovky 2024-12-29 162831](https://github.com/user-attachments/assets/ecc86996-22e9-4636-b43b-ff19dc5bca01)
 + Obrázok 2 Schéma hviezdy pre Chinook
-
+  
+#3. ETL proces v Snowflake
+Proces ETL bol rozdelený do troch základných krokov: extrakcia (Extract), transformácia (Transform) a načítanie (Load). Tento postup bol realizovaný v Snowflake, aby sa zdrojové dáta zo staging vrstvy spracovali a pripravili na analytické a vizualizačné účely v rámci viacdimenzionálneho modelu.
