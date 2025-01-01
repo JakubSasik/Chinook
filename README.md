@@ -70,5 +70,20 @@ Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod pr
 ![Snímka obrazovky 2024-12-29 162831](https://github.com/user-attachments/assets/ecc86996-22e9-4636-b43b-ff19dc5bca01)
 + Obrázok 2 Schéma hviezdy pre Chinook
   
-#3. ETL proces v Snowflake
-Proces ETL bol rozdelený do troch základných krokov: extrakcia (Extract), transformácia (Transform) a načítanie (Load). Tento postup bol realizovaný v Snowflake, aby sa zdrojové dáta zo staging vrstvy spracovali a pripravili na analytické a vizualizačné účely v rámci viacdimenzionálneho modelu.
+# 3. ETL proces v Snowflake
+Proces ETL je rozdelený do troch základných krokov: extrakcia (Extract), transformácia (Transform) a načítanie (Load). Tento postup je realizovaný v Snowflake, aby sa zdrojové dáta zo staging vrstvy spracovali a pripravili na analytické a vizualizačné účely v rámci viacdimenzionálneho modelu.
+# 3.1 Extract
+Pôvodné dáta v formáte .csv boli najprv importované do Snowflake pomocou interného stage úložiska s názvom my_stage. V Snowflake slúži stage ako dočasný priestor na nahrávanie alebo sťahovanie dát. Stage bol vytvorený pomocou nasledovného príkazu:
+![Snímka obrazovky 2025-01-01 152456](https://github.com/user-attachments/assets/13aac5a5-9046-46f7-a341-bbac4030bd91)
+
+Do stage boli následne nahraté súbory obsahujúce údaje o knihách, používateľoch, hodnoteniach, zamestnaniach a úrovniach vzdelania. Dáta boli importované do staging tabuliek pomocou príkazu COPY INTO. Pre každú tabuľku sa použil podobný príkaz:![Snímka obrazovky 2025-01-01 152824](https://github.com/user-attachments/assets/2f04ed25-babb-4be3-9cb5-de0f4143dc9e)
+
+V prípade nekonzistentných záznamov bol použitý parameter `ON_ERROR = 'CONTINUE', ktorý zabezpečil pokračovanie procesu bez prerušenia pri chybách. Tento prístup umožnil spracovať všetky riadky aj v prípade, že niektoré údaje neboli správne naformátované alebo obsahovali neštandardné hodnoty, čím sa minimalizovalo riziko prerušenia ETL procesu.
+
+Okrem toho bol použitý parameter FIELD_OPTIONALLY_ENCLOSED_BY, ktorý zabezpečuje, že hodnoty v CSV súboroch môžu byť obklopené úvodzovkami. Tento parameter je dôležitý pre spracovanie údajov, ktoré môžu obsahovať oddeľovače (napr. čiarky), pričom obklopenie hodnôt úvodzovkami zabraňuje nesprávnemu rozdeleniu údajov do stĺpcov.
+
+Na zabezpečenie plynulého načítania dát bol tiež použitý parameter ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE, ktorý umožňuje pokračovanie procesu aj v prípade, že počet stĺpcov v niektorých riadkoch CSV súboru nevyhovuje počtu stĺpcov v cieľovej tabuľke. Tento parameter bol nastavený tak, aby sa vyhli prerušeniam spracovania pri nezrovnalostiach v počte stĺpcov, čím sa zabezpečilo, že proces bude pokračovať a spracuje všetky dostupné dáta.
+# 3.2 Transfor
+
+
+
