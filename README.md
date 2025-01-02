@@ -67,7 +67,8 @@ Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod pr
 - Dim_MediaType: Obsahuje informácie o type média, ako je MP3, WAV, atď.
   
 Štruktúra hviezdicového modelu je znázornená na diagrame nižšie. Diagram ukazuje prepojenia medzi faktovou tabuľkou a dimenziami, čo zjednodušuje pochopenie a implementáciu modelu.
-![Snímka obrazovky 2024-12-29 162831](https://github.com/user-attachments/assets/ecc86996-22e9-4636-b43b-ff19dc5bca01)
+![dimTabulka](https://github.com/user-attachments/assets/e54ffd8b-e20d-4991-ba5f-a675ffc7275e)
+
 + Obrázok 2 Schéma hviezdy pre Chinook
   
 # 3. ETL proces v Snowflake
@@ -84,6 +85,18 @@ Okrem toho bol použitý parameter FIELD_OPTIONALLY_ENCLOSED_BY, ktorý zabezpe�
 
 Na zabezpečenie plynulého načítania dát bol tiež použitý parameter ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE, ktorý umožňuje pokračovanie procesu aj v prípade, že počet stĺpcov v niektorých riadkoch CSV súboru nevyhovuje počtu stĺpcov v cieľovej tabuľke. Tento parameter bol nastavený tak, aby sa vyhli prerušeniam spracovania pri nezrovnalostiach v počte stĺpcov, čím sa zabezpečilo, že proces bude pokračovať a spracuje všetky dostupné dáta.
 # 3.2 Transfor
+V tejto fáze boli dáta zo staging tabuliek vyčistené, transformované a obohatené. Hlavným cieľom bolo pripraviť dimenzie a faktovú tabuľku, ktoré umožnia jednoduchú a efektívnu analýzu.
+
+Analyzoval som predaj skladieb a zameral som sa na to, ktoré žánre a typy médií sú medzi zákazníkmi najobľúbenejšie. Chcel som získať prehľad o tom, ako zákazníci nakupujú hudbu na základe rôznych faktorov, ako sú typ skladby, album, žáner a čas nákupu. Skúmal som, ktoré skladby a albumy sa najviac predávajú a ako sa tieto predaje menia v závislosti od obdobia. Na analýzu som použil dimenzionálny model typu hviezda, kde som prepojil dimenzionálne tabuľky so faktovou tabuľkou predajov. Týmto spôsobom som získal komplexný obraz o preferenciách zákazníkov a trendoch v predaji hudby.
+# 3.3 Load
+
+Po úspešnom vytvorení dimenzií a faktovej tabuľky boli dáta prenesené do finálnej štruktúry. Na záver boli staging tabuľky vymazané s cieľom optimalizovať využitie úložného priestoru.
+
+![Snímka obrazovky 2025-01-02 132948](https://github.com/user-attachments/assets/5292e986-0de3-4f67-b2b8-4fb05c17bd14)
+
+
+ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu .csv do viacdimenzionálneho modelu typu hviezda. Tento proces zahŕňal kroky čistenia, obohacovania a reorganizácie dát. Výsledný model poskytuje základ pre analýzu čitateľských preferencií a správania používateľov, čím zároveň vytvára predpoklady pre tvorbu vizualizácií a reportov.
+
 
 
 
