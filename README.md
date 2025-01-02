@@ -61,7 +61,7 @@ Surové dáta sú usporiadané v relačnom modeli, ktorý je znázornený na ent
 </p>
 
 # 2.Dimenzonálny model
-Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod predstavuje faktová tabuľka fact_sales, ktorá je prepojená s nasledujúcimi dimenziami:
+Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod predstavuje faktová tabuľka `fact_sales`, ktorá je prepojená s nasledujúcimi dimenziami:
 
 - `Dim_Track`: Obsahuje informácie o skladbách, ako sú názov, dĺžka, album, interpret a podobne.
 - `Dim_Genre`: Obsahuje demografické údaje o používateľoch, ako sú vekové kategórie, pohlavie, povolanie a vzdelanie.
@@ -183,8 +183,62 @@ JOIN MEDIATYPE_STAGING mts ON gs.GenreId = mts.MediaTypeId;
 
 ```
 5. `fact_sales`
-+ Táto faktová tabuľka obsahuje informácie o predajoch. Zahŕňa identifikátor predaja (fact_salesId), identifikátory zákazníka (dim_customerId) a skladby (dim_trackId), dátum predaja (sale_date), celkovú hodnotu predaja (total_amount), množstvo predaných kusov (quantity_sold), typ média (media_type) a žáner (genre_id). Táto tabuľka je hlavná pre analýzu predajov, poskytuje detailné informácie o transakciách a umožňuje spracovanie predajných dát podľa rôznych dimenzií (zákazníci, skladby, čas, typ média, žáner).
-```sql
+   
+***Primárne kľúče a cudzie kľúče***
+   
+`fact_salesId` (Primárny kľúč)
++ Popis: Identifikuje každý záznam v tabuľke. Zvyčajne je unikátny pre každú faktovú transakciu.
++ Zdroj: InvoiceLineId z tabuľky INVOICELINE_STAGING.
+  
+`dim_customerId` (Cudzí kľúč)
++ Popis: Referencia na dimenziu zákazníka, identifikuje, ktorý zákazník uskutočnil predaj.
++ Zdroj: CustomerId z tabuľky INVOICE_STAGING.
+  
+`dim_trackId` (Cudzí kľúč)
++ Popis: Referencia na dimenziu skladby, identifikuje predanú skladbu.
++ Zdroj: TrackId z tabuľky INVOICELINE_STAGING.
+  
+`dateID` (Cudzí kľúč)
++ Popis: Referencia na dimenziu dátumu, umožňuje analýzu podľa dátumu predaja.
++ Zdroj: Vygenerované prepojením InvoiceDate s dimenziou dim_date.
+  
+`media_type` (Cudzí kľúč)
++ Popis: Identifikuje typ média skladby (napr. digitálne, CD).
++ Zdroj: MediaTypeId z tabuľky TRACK_STAGING.
+  
+`genre_id` (Cudzí kľúč)
++ Popis: Referencia na dimenziu žánru skladby.
++ Zdroj: GenreId z tabuľky GENRE_STAGING.
+
+***Metriky***
+
+`total_amount`
++ Popis: Celková suma predaja pre daný záznam (jednotková cena × množstvo). Táto metrika umožňuje sledovať tržby.
++ Zdroj: Výpočet: UnitPrice * Quantity.
+  
+`quantity_sold`
++ Popis: Počet predaných kusov skladby pre daný záznam.
++ Zdroj: Quantity z tabuľky INVOICELINE_STAGING.
+
+***Dôležitosť pre analýzu***
+
+`Analýza predaja podľa zákazníkov`
+Pomocou dim_customerId možno sledovať nákupné správanie jednotlivých zákazníkov.
+
+`Analýza predaja podľa skladieb a žánrov`
+dim_trackId a genre_id umožňujú zistiť, ktoré skladby a žánre sú najpredávanejšie.
+
+`Analýza podľa času`
+sale_date a dateID umožňujú sledovať trendy predaja v čase (denne, týždenne, mesačne, ročne).
+
+`Segmentácia podľa typu média`
+media_type poskytuje možnosť analyzovať, ktoré typy médií sú populárne.
+
+`Výpočet výnosov a predajných trendov`
+Metriky total_amount a quantity_sold slúžia na sledovanie výnosov a objemu predaja.
+
+**Táto faktová tabuľka je navrhnutá tak, aby podporovala rôzne pohľady na predaje a umožňovala analýzy, ako je hodnotenie tržieb, identifikácia populárnych skladieb a zákazníckych preferencií v rôznych časových obdobiach.**
+  ```sql
 CREATE TABLE fact_sales AS
 SELECT 
     il.InvoiceLineId AS fact_salesId,
@@ -220,6 +274,6 @@ DROP TABLE IF EXISTS PLAYLIST_STAGING;
 DROP TABLE IF EXISTS PLAYLISTTRACK_STAGING;
 ```
 
-ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu .csv do viacdimenzionálneho modelu typu hviezda. Tento proces zahŕňal kroky čistenia, obohacovania a reorganizácie dát. Výsledný model poskytuje základ pre analýzu čitateľských preferencií a správania používateľov, čím zároveň vytvára predpoklady pre tvorbu vizualizácií a reportov.
+ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu `.csv` do viacdimenzionálneho modelu typu hviezda. Tento proces zahŕňal kroky čistenia, obohacovania a reorganizácie dát. Výsledný model poskytuje základ pre analýzu čitateľských preferencií a správania používateľov, čím zároveň vytvára predpoklady pre tvorbu vizualizácií a reportov.
 
 
