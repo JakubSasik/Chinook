@@ -202,15 +202,23 @@ JOIN dim_date dd ON CAST(i.InvoiceDate AS DATE) = dd.date
 JOIN TRACK_STAGING t ON il.TrackId = t.TrackId
 JOIN GENRE_STAGING g ON t.GenreId = g.GenreId;
 ```
-
-
-
-
 # 3.3 Load
 
 Po úspešnom vytvorení dimenzií a faktovej tabuľky boli dáta prenesené do finálnej štruktúry. Na záver boli staging tabuľky vymazané s cieľom optimalizovať využitie úložného priestoru.
 
-![Snímka obrazovky 2025-01-02 132948](https://github.com/user-attachments/assets/5292e986-0de3-4f67-b2b8-4fb05c17bd14)
+```sql
+DROP TABLE IF EXISTS CUSTOMER_STAGING;
+DROP TABLE IF EXISTS TRACK_STAGING;
+DROP TABLE IF EXISTS GENRE_STAGING;
+DROP TABLE IF EXISTS ALBUM_STAGING;
+DROP TABLE IF EXISTS MEDIATYPE_STAGING;
+DROP TABLE IF EXISTS INVOICE_STAGING;
+DROP TABLE IF EXISTS INVOICELINE_STAGING;
+DROP TABLE IF EXISTS ARTIST_STAGING;
+DROP TABLE IF EXISTS EMPLOYEE_STAGING;
+DROP TABLE IF EXISTS PLAYLIST_STAGING;
+DROP TABLE IF EXISTS PLAYLISTTRACK_STAGING;
+```
 
 ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu .csv do viacdimenzionálneho modelu typu hviezda. Tento proces zahŕňal kroky čistenia, obohacovania a reorganizácie dát. Výsledný model poskytuje základ pre analýzu čitateľských preferencií a správania používateľov, čím zároveň vytvára predpoklady pre tvorbu vizualizácií a reportov.
 
