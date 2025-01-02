@@ -88,12 +88,39 @@ Na zabezpečenie plynulého načítania dát bol tiež použitý parameter ERROR
 V tejto fáze boli dáta zo staging tabuliek vyčistené, transformované a obohatené. Hlavným cieľom bolo pripraviť dimenzie a faktovú tabuľku, ktoré umožnia jednoduchú a efektívnu analýzu.
 
 Analyzoval som predaj skladieb a zameral som sa na to, ktoré žánre a typy médií sú medzi zákazníkmi najobľúbenejšie. Chcel som získať prehľad o tom, ako zákazníci nakupujú hudbu na základe rôznych faktorov, ako sú typ skladby, album, žáner a čas nákupu. Skúmal som, ktoré skladby a albumy sa najviac predávajú a ako sa tieto predaje menia v závislosti od obdobia. Na analýzu som použil dimenzionálny model typu hviezda, kde som prepojil dimenzionálne tabuľky so faktovou tabuľkou predajov. Týmto spôsobom som získal komplexný obraz o preferenciách zákazníkov a trendoch v predaji hudby.
+
+![Snímka obrazovky 2025-01-02 132010](https://github.com/user-attachments/assets/4b09c632-40fb-4ab7-9e71-6f0d1428939f)
+
+1. dim_customers
+ + Táto tabuľka obsahuje informácie o zákazníkoch. Skladá sa z identifikátora zákazníka (dim_customerId), mena (full_name), adresy, mesta, štátu, krajiny, poštového kódu, telefónneho čísla a emailu. Tento dátový model umožňuje efektívne spracovávať a analyzovať údaje o zákazníkoch.
+
+![Snímka obrazovky 2025-01-02 132017](https://github.com/user-attachments/assets/5b3adef5-f0a1-44d0-a344-aa9d319fa614)
+
+2. dim_tracks
++ Táto tabuľka obsahuje informácie o skladbách. Zahŕňa identifikátor skladby (dim_trackId), názov skladby (track_name), identifikátor albumu (AlbumId), názov albumu (album_name), žáner (genre_name), typ média (media_type) a cenu za jednotku (UnitPrice). Táto tabuľka je užitočná na analýzu predaja skladieb na základe rôznych atribútov ako je album, žáner, či typ média.
+
+![Snímka obrazovky 2025-01-02 132026](https://github.com/user-attachments/assets/2d6a5fee-e5e0-41fc-a94b-3a9d1bbb7211)
+
+3. dim_date
++ Táto tabuľka obsahuje informácie o dátumoch. Každý záznam má jedinečný identifikátor (dim_dateId) a zobrazuje rôzne časové aspekty: deň (day), deň v týždni (dayOfWeek), názov dňa (dayOfWeekAsString), mesiac (month), rok (year) a kvartál (quarter). Je kľúčová pre analýzu predaja na základe času a pre agregovanie dát podľa rôznych časových jednotiek.
+
+![Snímka obrazovky 2025-01-02 132032](https://github.com/user-attachments/assets/6e937a8f-4d6f-4648-9327-5e7680d8d4b8)
+
+4. dim_genres_media
++ Táto tabuľka obsahuje kombináciu informácií o žánroch a typoch médií. Pre každý žáner (dim_genreId) je spojený s médiom (dim_mediaTypeId), čo umožňuje analyzovať predaje podľa žánru a typu média, ako sú napríklad rôzne formáty (mp3, CD, atď.).
+
+![Snímka obrazovky 2025-01-02 132038](https://github.com/user-attachments/assets/deca2679-f4f5-400d-a20c-02b85189a301)
+
+5. fact_sales
++ Táto faktová tabuľka obsahuje informácie o predajoch. Zahŕňa identifikátor predaja (fact_salesId), identifikátory zákazníka (dim_customerId) a skladby (dim_trackId), dátum predaja (sale_date), celkovú hodnotu predaja (total_amount), množstvo predaných kusov (quantity_sold), typ média (media_type) a žáner (genre_id). Táto tabuľka je hlavná pre analýzu predajov, poskytuje detailné informácie o transakciách a umožňuje spracovanie predajných dát podľa rôznych dimenzií (zákazníci, skladby, čas, typ média, žáner).
+
+
+
 # 3.3 Load
 
 Po úspešnom vytvorení dimenzií a faktovej tabuľky boli dáta prenesené do finálnej štruktúry. Na záver boli staging tabuľky vymazané s cieľom optimalizovať využitie úložného priestoru.
 
 ![Snímka obrazovky 2025-01-02 132948](https://github.com/user-attachments/assets/5292e986-0de3-4f67-b2b8-4fb05c17bd14)
-
 
 ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu .csv do viacdimenzionálneho modelu typu hviezda. Tento proces zahŕňal kroky čistenia, obohacovania a reorganizácie dát. Výsledný model poskytuje základ pre analýzu čitateľských preferencií a správania používateľov, čím zároveň vytvára predpoklady pre tvorbu vizualizácií a reportov.
 
