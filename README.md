@@ -72,7 +72,7 @@ Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod pr
   
 Štruktúra hviezdicového modelu je znázornená na diagrame nižšie. Diagram ukazuje prepojenia medzi faktovou tabuľkou a dimenziami, čo zjednodušuje pochopenie a implementáciu modelu.
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/e54ffd8b-e20d-4991-ba5f-a675ffc7275e" alt="Star Schema">
+  <img src="https://github.com/user-attachments/assets/6d50b89d-1db2-4660-beea-2e4fee2941d3" alt="Star Schema">
   <br>
   <em>Obrázok 2 Schéma hviezdy pre Chinook</em>
 </p>
