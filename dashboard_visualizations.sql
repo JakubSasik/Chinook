@@ -9,7 +9,7 @@ ORDER BY total_sales DESC
 LIMIT 10;
 
 
--- Graf 2: Predaje podľa žánrov
+-- Graf 2: TOP 5 Predaje podľa žánrov
 SELECT 
     g.genre_name AS genre,
     SUM(fs.total_amount) AS total_sales
@@ -19,7 +19,7 @@ GROUP BY g.genre_name
 ORDER BY total_sales DESC
 LIMIT 5;
 
--- Graf 3: Trend predajov v čase(posledných 5 rokov)
+-- Graf 3: Trend zákazníkov a transakcií za posledných 5 rokov
 SELECT 
     d.year,
     COUNT(DISTINCT fs.dim_customerId) AS unique_customers,
@@ -44,7 +44,7 @@ ORDER BY total_sales DESC
 LIMIT 5;
 
 
--- Graf 5: Predaje podľa mediálnych formátov v kvartáloch počas covidu
+-- Graf 5: Predaje podľa mediálnych formátov v kvartáloch počas COVID-u (2020–2022)
 SELECT 
     d.year,
     d.quarter,
