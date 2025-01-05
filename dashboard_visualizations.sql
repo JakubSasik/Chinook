@@ -19,7 +19,7 @@ GROUP BY g.genre_name
 ORDER BY total_sales DESC
 LIMIT 5;
 
--- Graf 3: Trend predajov v čase
+-- Graf 3: Trend predajov v čase(posledných 5 rokov)
 SELECT 
     d.year,
     COUNT(DISTINCT fs.dim_customerId) AS unique_customers,
