@@ -124,13 +124,30 @@ SELECT DISTINCT
     c.Country,
     c.PostalCode,
     c.Phone,
-    c.Email
+    c.Email,
+    CURRENT_DATE() AS effective_date,  
+    NULL AS expiration_date,          
+    TRUE AS is_current                
 FROM CUSTOMER_STAGING c;
 ```
-2. `dim_tracks`
-+ Typ SCD(Slowly Changing Dimension): Typ 2 (Uchovávanie histórie)
-  + Dôvod: Skladby môžu meniť svoje atribúty (napr. cenu, album alebo žáner), a tieto zmeny chceme uchovávať v historických dátach. SCD Type 2 nám umožňuje zaznamenávať tieto zmeny a zachovať historické verzie skladieb.
-+ Táto tabuľka obsahuje informácie o skladbách. Zahŕňa identifikátor skladby (dim_trackId), názov skladby (track_name), identifikátor albumu (AlbumId), názov albumu (album_name), žáner (genre_name), typ média (media_type) a cenu za jednotku (UnitPrice). Táto tabuľka je užitočná na analýzu predaja skladieb na základe rôznych atribútov ako je album, žáner, či typ média.
+2. `dim_album`
++ Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie údajov)
+  + Dôvod: Informácie o albumoch sú stabilné a nemenné, preto nepotrebujeme uchovávať históriu zmien. 
++ Táto tabuľka obsahuje informácie o albumoch. Zahrnuté sú údaje ako identifikátor albumu (dim_album_id), názov albumu (album_title) a meno umelca (artist_name). Tento dátový model umožňuje jednoducho spravovať a analyzovať údaje o albumoch.
+```sql
+CREATE TABLE dim_album AS
+SELECT DISTINCT
+    a.AlbumId AS dim_album_id,
+    a.Title AS album_title,
+    ar.Name AS artist_name
+FROM album_staging a
+LEFT JOIN artist_staging ar ON a.ArtistId = ar.ArtistId;
+```
+
+3. `dim_tracks`
++ Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie údajov)
+  + Dôvod: Informácie o žánroch sú stabilné a nemenia sa, preto ich uchovávanie histórie nie je potrebné.
++ Táto tabuľka obsahuje informácie o hudobných žánroch. Zahrnuté sú identifikátor žánru (dim_genre_id) a názov žánru (genre_name). Tento model nám umožňuje efektívne spravovať žánre hudby.
 ```sql
 CREATE TABLE dim_tracks AS
 SELECT DISTINCT
@@ -149,7 +166,18 @@ LEFT JOIN GENRE_STAGING g ON ts.GenreId = g.GenreId
 LEFT JOIN MEDIATYPE_STAGING mt ON ts.MediaTypeId = mt.MediaTypeId;
 
 ```
-3. `dim_date`
+4. `dim_genre`
++ Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie údajov)
+  + Dôvod: Informácie o žánroch sú stabilné a nemenia sa, preto ich uchovávanie histórie nie je potrebné
++ Táto tabuľka obsahuje informácie o hudobných žánroch. Zahrnuté sú identifikátor žánru (dim_genre_id) a názov žánru (genre_name). Tento model nám umožňuje efektívne spravovať žánre hudby.
+```sql
+CREATE TABLE dim_genre AS
+SELECT DISTINCT
+    g.GenreId AS dim_genre_id,
+    g.Name AS genre_name
+FROM genre_staging g;
+```
+5. `dim_date`
 + Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie)
   + Dôvod: Dátumy sú statické a nemenné, takže nie je potrebné uchovávať historické verzie dátumov. SCD Type 1 sa používa na aktualizáciu dát bez uchovávania histórie.
 + Táto tabuľka obsahuje informácie o dátumoch. Každý záznam má jedinečný identifikátor (dim_dateId) a zobrazuje rôzne časové aspekty: deň (day), deň v týždni (dayOfWeek), názov dňa (dayOfWeekAsString), mesiac (month), rok (year) a kvartál (quarter). Je kľúčová pre analýzu predaja na základe času a pre agregovanie dát podľa rôznych časových jednotiek.
@@ -175,22 +203,31 @@ SELECT DISTINCT
 FROM INVOICE_STAGING inv;
 
 ```
-4. `dim_genres_media`
+6. ` dim_media_type`
 + Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie)
-  + Dôvod: Žánre a typy médií sa zvyčajne nemenia, a ak sa zmena vyskytne, nebude potrebné uchovávať staré hodnoty. SCD Type 1 je vhodný na prepisovanie týchto údajov bez uchovávania historických zmien.
-+ Táto tabuľka obsahuje kombináciu informácií o žánroch a typoch médií. Pre každý žáner (dim_genreId) je spojený s médiom (dim_mediaTypeId), čo umožňuje analyzovať predaje podľa žánru a typu média, ako sú napríklad rôzne formáty (mp3, CD, atď.).
+  + Dôvod: Informácie o typoch médií sú stabilné a nemenia sa, preto ich uchovávanie histórie nie je nevyhnutné.
++ Táto tabuľka obsahuje informácie o type médií. Zahrnuté sú identifikátor typu médií (dim_media_type_id) a názov média (media_type_name). Tento model spravuje rôzne typy médií, ako napríklad MP3, WAV, atď.
 ```sql
-CREATE TABLE dim_genres_media AS
+CREATE TABLE dim_media_type AS
 SELECT DISTINCT
-    gs.GenreId AS dim_genreId,
-    gs.Name AS genre_name,
-    mts.MediaTypeId AS dim_mediaTypeId,
-    mts.Name AS media_type
-FROM GENRE_STAGING gs
-JOIN MEDIATYPE_STAGING mts ON gs.GenreId = mts.MediaTypeId;
+    m.MediaTypeId AS dim_media_type_id,
+    m.Name AS media_type_name
+FROM mediatype_staging m;
+```
+7.  `dim_playlist`
++ Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie údajov)
+   + Dôvod: Informácie o playlistoch sú stabilné a nemenia sa, preto uchovávanie histórie zmien nie je nevyhnutné.
++ Táto tabuľka obsahuje informácie o playlistoch. Zahrnuté sú identifikátor playlistu (dim_playlist_id) a názov playlistu (playlist_name). Tento model umožňuje spravovať a analyzovať playlisty.
+```sql
+CREATE TABLE dim_playlist AS
+SELECT DISTINCT
+    p.PlaylistId AS dim_playlist_id,
+    p.Name AS playlist_name
+FROM playlist_staging p;
 
 ```
-5. `fact_sales`
+  
+8. `fact_sales`
 + Typ SCD(Slowly Changing Dimension): Typ 1 (Prepisovanie)
   + Dôvod: Faktové tabuľky obsahujú transakčné údaje, ktoré po vložení už nebudú upravované. SCD Type 1 sa používa, keď nie je potrebné uchovávať historické údaje a každá transakcia je samostatný záznam.
     
@@ -202,69 +239,80 @@ JOIN MEDIATYPE_STAGING mts ON gs.GenreId = mts.MediaTypeId;
   
 `dim_customerId` (Cudzí kľúč)
 + Popis: Referencia na dimenziu zákazníka, identifikuje, ktorý zákazník uskutočnil predaj.
-+ Zdroj: CustomerId z tabuľky INVOICE_STAGING.
++ Zdroj: CustomerId z tabuľky INVOICE_STAGING. Zákazníci sú spájaní cez ich dim_customerId, pričom je zabezpečené, že sa použijú iba aktuálni zákazníci (prostredníctvom podmienky c.is_current = TRUE).
   
-`dim_trackId` (Cudzí kľúč)
+`dim_track_id` (Cudzí kľúč)
 + Popis: Referencia na dimenziu skladby, identifikuje predanú skladbu.
-+ Zdroj: TrackId z tabuľky INVOICELINE_STAGING.
++ Zdroj: TrackId z tabuľky INVOICELINE_STAGING, ktorý je prepojený s dimenziou skladby.
   
-`dateID` (Cudzí kľúč)
-+ Popis: Referencia na dimenziu dátumu, umožňuje analýzu podľa dátumu predaja.
-+ Zdroj: Vygenerované prepojením InvoiceDate s dimenziou dim_date.
+`dim_dateID` (Cudzí kľúč)
++ Popis: Referencia na dimenziu dátumu, ktorá umožňuje analýzu podľa dátumu predaja.
++ Zdroj: InvoiceDate z tabuľky INVOICE_STAGING, ktorý je spájaný s dátumom v dimenzii dim_date.
   
-`media_type` (Cudzí kľúč)
-+ Popis: Identifikuje typ média skladby (napr. digitálne, CD).
+`dim_media_type_id` (Cudzí kľúč)
++ Popis: Identifikuje typ média, akým bol predaný produkt (napr. digitálne stiahnutie, CD).
 + Zdroj: MediaTypeId z tabuľky TRACK_STAGING.
   
-`genre_id` (Cudzí kľúč)
+`dim_genre_id` (Cudzí kľúč)
 + Popis: Referencia na dimenziu žánru skladby.
 + Zdroj: GenreId z tabuľky GENRE_STAGING.
+  
+`dim_playlist_id` (Cudzí kľúč)
++ Popis: Referencia na dimenziu playlistu, ktorý obsahuje predanú skladbu.
++ Zdroj: PlaylistId z tabuľky PLAYLISTTRACK_STAGING.
+
+`dim_album_id` (Cudzí kľúč)
++ Popis: Referencia na dimenziu albumu, ktorý obsahuje predanú skladbu.
++ Zdroj: AlbumId z tabuľky TRACK_STAGING.
 
 ***Metriky***
 
 `total_amount`
 + Popis: Celková suma predaja pre daný záznam (jednotková cena × množstvo). Táto metrika umožňuje sledovať tržby.
 + Zdroj: Výpočet: UnitPrice * Quantity.
-  
-`quantity_sold`
-+ Popis: Počet predaných kusov skladby pre daný záznam.
-+ Zdroj: Quantity z tabuľky INVOICELINE_STAGING.
+
 
 ***Dôležitosť pre analýzu***
 
 `Analýza predaja podľa zákazníkov`
 Pomocou dim_customerId možno sledovať nákupné správanie jednotlivých zákazníkov.
 
-`Analýza predaja podľa skladieb a žánrov`
-dim_trackId a genre_id umožňujú zistiť, ktoré skladby a žánre sú najpredávanejšie.
+`Analýza predaja podľa skladieb, albumov a žánrov`
+dim_track_id, dim_genre_id, dim_playlist_id, a dim_album_id umožňujú sledovať, ktoré skladby, žánre, albumy a playlisty sú najpredávanejšie, a poskytujú dôležité informácie na analýzu trendov v hudobnom priemysle.
 
 `Analýza podľa času`
-sale_date a dateID umožňujú sledovať trendy predaja v čase (denne, týždenne, mesačne, ročne).
+ dim_dateId a invoice_date môžeme analyzovať predaje podľa rôznych časových období (denne, týždenne, mesačne, ročne), čím získame cenné informácie o trendoch v čase.
 
 `Segmentácia podľa typu média`
-media_type poskytuje možnosť analyzovať, ktoré typy médií sú populárne.
+Pre analýzu preferencií zákazníkov podľa typu predaja média poskytuje dim_media_type_id užitočné informácie o tom, ktorý typ média (napr. digitálne alebo CD) je populárnejší..
 
-`Výpočet výnosov a predajných trendov`
-Metriky total_amount a quantity_sold slúžia na sledovanie výnosov a objemu predaja.
 
 **Táto faktová tabuľka je navrhnutá tak, aby podporovala rôzne pohľady na predaje a umožňovala analýzy, ako je hodnotenie tržieb, identifikácia populárnych skladieb a zákazníckych preferencií v rôznych časových obdobiach.**
   ```sql
 CREATE TABLE fact_sales AS
 SELECT 
-    il.InvoiceLineId AS fact_salesId,
-    i.CustomerId AS dim_customerId,
-    il.TrackId AS dim_trackId,
-    CAST(i.InvoiceDate AS DATE) AS sale_date,
-    dd.dim_dateId AS dateID,
-    il.UnitPrice * il.Quantity AS total_amount,
-    il.Quantity AS quantity_sold,
-    t.MediaTypeId AS media_type,
-    g.GenreId AS genre_id
-FROM INVOICELINE_STAGING il
-JOIN INVOICE_STAGING i ON il.InvoiceId = i.InvoiceId
-JOIN dim_date dd ON CAST(i.InvoiceDate AS DATE) = dd.date
-JOIN TRACK_STAGING t ON il.TrackId = t.TrackId
-JOIN GENRE_STAGING g ON t.GenreId = g.GenreId;
+    inv.InvoiceId AS fact_sales_id,
+    inv.InvoiceDate AS invoice_date,
+    inv.Total AS total_amount,
+    d.dim_dateId AS dim_dateId,
+    c.dim_customerId AS dim_customerId,
+    tr.dim_track_id AS dim_track_id,
+    g.dim_genre_id AS dim_genre_id,
+    m.dim_media_type_id AS dim_media_type_id,
+    p.dim_playlist_id AS dim_playlist_id,
+    a.dim_album_id AS dim_album_id
+FROM invoice_staging inv
+JOIN dim_date d ON CAST(inv.InvoiceDate AS DATE) = d.date
+JOIN dim_customers c ON inv.CustomerId = c.dim_customerId
+LEFT JOIN invoiceline_staging il ON inv.InvoiceId = il.InvoiceId
+LEFT JOIN dim_track tr ON il.TrackId = tr.dim_track_id
+LEFT JOIN track_staging ts ON il.TrackId = ts.TrackId
+LEFT JOIN dim_genre g ON ts.GenreId = g.dim_genre_id
+LEFT JOIN dim_media_type m ON ts.MediaTypeId = m.dim_media_type_id
+LEFT JOIN playlisttrack_staging pts ON ts.TrackId = pts.TrackId
+LEFT JOIN dim_playlist p ON pts.PlaylistId = p.dim_playlist_id
+LEFT JOIN dim_album a ON ts.AlbumId = a.dim_album_id;
+
 ```
 # 3.3 Load
 
