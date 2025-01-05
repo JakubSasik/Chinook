@@ -1,13 +1,12 @@
--- Vytvorenie stage pre načítanie .csv súborov
+--  Vytvorenie stage pre načítanie .csv súborov 
 CREATE OR REPLACE STAGE my_stage;
 
--- Vytvorenie staging tabuľky pre albumy
+-- Vytvorenie tabuľky album
 CREATE OR REPLACE TABLE album_staging (
     AlbumId INT,
     Title STRING,
     ArtistId INT
 );
-
 -- Načítanie dát zo súboru album.csv do staging tabuľky
 COPY INTO album_staging
 FROM @my_stage/album.csv
@@ -19,7 +18,7 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre skladby
+--  -- Vytvorenie tabuľky trackov
 CREATE OR REPLACE TABLE track_staging (
     TrackId INT,
     Name STRING,
@@ -31,7 +30,6 @@ CREATE OR REPLACE TABLE track_staging (
     Bytes INT,
     UnitPrice FLOAT
 );
-
 -- Načítanie dát zo súboru track.csv do staging tabuľky
 COPY INTO track_staging
 FROM @my_stage/track.csv
@@ -43,12 +41,11 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre playlisty skladieb
+-- -- Vytvorenie tabuľky playlisttrack
 CREATE OR REPLACE TABLE playlisttrack_staging (
     PlaylistId INT,
     TrackId INT
 );
-
 -- Načítanie dát zo súboru playlisttrack.csv do staging tabuľky
 COPY INTO playlisttrack_staging
 FROM @my_stage/playlisttrack.csv
@@ -60,12 +57,11 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre playlisty
+-- -- Vytvorenie tabuľky playlist
 CREATE OR REPLACE TABLE playlist_staging (
     PlaylistId INT,
     Name STRING
 );
-
 -- Načítanie dát zo súboru playlist.csv do staging tabuľky
 COPY INTO playlist_staging
 FROM @my_stage/playlist.csv
@@ -77,12 +73,11 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre typy médií
+-- -- Vytvorenie tabuľky mediatype
 CREATE OR REPLACE TABLE mediatype_staging (
     MediaTypeId INT,
     Name STRING
 );
-
 -- Načítanie dát zo súboru mediatype.csv do staging tabuľky
 COPY INTO mediatype_staging
 FROM @my_stage/mediatype.csv
@@ -94,7 +89,7 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre faktúry
+-- -- Vytvorenie tabuľky invoiceline
 CREATE OR REPLACE TABLE invoiceline_staging (
     InvoiceLineId INT,
     InvoiceId INT,
@@ -102,7 +97,6 @@ CREATE OR REPLACE TABLE invoiceline_staging (
     UnitPrice DECIMAL(10, 2),
     Quantity INT
 );
-
 -- Načítanie dát zo súboru invoiceline.csv do staging tabuľky
 COPY INTO invoiceline_staging
 FROM @my_stage/invoiceline.csv
@@ -114,7 +108,7 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre faktúry
+-- -- Vytvorenie tabuľky invoice
 CREATE OR REPLACE TABLE invoice_staging (
     InvoiceId INT,
     CustomerId INT,
@@ -126,7 +120,6 @@ CREATE OR REPLACE TABLE invoice_staging (
     BillingPostalCode STRING,
     Total DECIMAL(10, 2)
 );
-
 -- Načítanie dát zo súboru invoice.csv do staging tabuľky
 COPY INTO invoice_staging
 FROM @my_stage/invoice.csv
@@ -138,12 +131,11 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre žánre
+-- Vytvorenie tabuľky genre
 CREATE OR REPLACE TABLE genre_staging (
     GenreId INT,
     Name STRING
 );
-
 -- Načítanie dát zo súboru genre.csv do staging tabuľky
 COPY INTO genre_staging
 FROM @my_stage/genre.csv
@@ -155,7 +147,7 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre zamestnancov
+-- Vytvorenie tabuľky employee
 CREATE OR REPLACE TABLE employee_staging (
     EmployeeId INT,
     LastName STRING,
@@ -173,7 +165,6 @@ CREATE OR REPLACE TABLE employee_staging (
     Fax STRING,
     Email STRING
 );
-
 -- Načítanie dát zo súboru employee.csv do staging tabuľky
 COPY INTO employee_staging
 FROM @my_stage/employee.csv
@@ -186,7 +177,7 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre zákazníkov
+-- Vytvorenie tabuľky customer
 CREATE OR REPLACE TABLE customer_staging (
     CustomerId INT,
     FirstName STRING,
@@ -202,7 +193,6 @@ CREATE OR REPLACE TABLE customer_staging (
     Email STRING,
     SupportRepId INT
 );
-
 -- Načítanie dát zo súboru customer.csv do staging tabuľky
 COPY INTO customer_staging
 FROM @my_stage/customer.csv
@@ -214,12 +204,11 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie staging tabuľky pre umelcov
+-- Vytvorenie tabuľky artist
 CREATE OR REPLACE TABLE artist_staging (
     ArtistId INT,
     Name STRING
 );
-
 -- Načítanie dát zo súboru artist.csv do staging tabuľky
 COPY INTO artist_staging
 FROM @my_stage/artist.csv
@@ -231,9 +220,8 @@ FILE_FORMAT = (
 )
 ON_ERROR = 'CONTINUE';
 
--- Vytvorenie dimenzií a faktových tabuliek
 
--- Dimenzia zákazníkov
+-- Tvorba dimenzie zákazníkov
 CREATE TABLE dim_customers AS
 SELECT DISTINCT
     c.CUSTOMERID AS dim_customerId,
@@ -244,27 +232,54 @@ SELECT DISTINCT
     c.Country,
     c.PostalCode,
     c.Phone,
-    c.Email
+    c.Email,
+    CURRENT_DATE() AS effective_date,  
+    NULL AS expiration_date,          
+    TRUE AS is_current                
 FROM CUSTOMER_STAGING c;
 
--- Dimenzia skladieb
-CREATE TABLE dim_tracks AS
+-- Tvorba dimenzie albumov
+CREATE TABLE dim_album AS
 SELECT DISTINCT
-    ts.TrackId AS dim_trackId,
-    ts.Name AS track_name,
-    ts.AlbumId,
-    a.Title AS album_name,
-    ts.GenreId,
-    g.Name AS genre_name,
-    ts.MediaTypeId,
-    mt.Name AS media_type,
-    ts.UnitPrice
-FROM TRACK_STAGING ts
-LEFT JOIN ALBUM_STAGING a ON ts.AlbumId = a.AlbumId
-LEFT JOIN GENRE_STAGING g ON ts.GenreId = g.GenreId
-LEFT JOIN MEDIATYPE_STAGING mt ON ts.MediaTypeId = mt.MediaTypeId;
+    a.AlbumId AS dim_album_id,
+    a.Title AS album_title,
+    ar.Name AS artist_name
+FROM album_staging a
+LEFT JOIN artist_staging ar ON a.ArtistId = ar.ArtistId;
 
--- Dimenzia dátumu
+-- Tvorba dimenzie track
+CREATE TABLE dim_track AS
+SELECT DISTINCT
+    t.TrackId AS dim_track_id,
+    t.Name AS track_name,
+    t.Composer AS composer,
+    t.Milliseconds AS duration_milliseconds,
+    t.Bytes AS file_size_bytes,
+    t.UnitPrice AS unit_price
+FROM track_staging t;
+
+-- Tvorba dimenzie genre
+CREATE TABLE dim_genre AS
+SELECT DISTINCT
+    g.GenreId AS dim_genre_id,
+    g.Name AS genre_name
+FROM genre_staging g;
+
+-- Tvorba dimenzie media_type
+CREATE TABLE dim_media_type AS
+SELECT DISTINCT
+    m.MediaTypeId AS dim_media_type_id,
+    m.Name AS media_type_name
+FROM mediatype_staging m;
+
+-- Tvorba dimenzie playlist
+CREATE TABLE dim_playlist AS
+SELECT DISTINCT
+    p.PlaylistId AS dim_playlist_id,
+    p.Name AS playlist_name
+FROM playlist_staging p;
+
+-- Tvorba dimenzie dátumu
 CREATE TABLE dim_date AS
 SELECT DISTINCT
     ROW_NUMBER() OVER (ORDER BY CAST(inv.InvoiceDate AS DATE)) AS dim_dateId,
@@ -285,35 +300,32 @@ SELECT DISTINCT
     DATE_PART(quarter, inv.InvoiceDate) AS quarter
 FROM INVOICE_STAGING inv;
 
--- Dimenzia žánrov a médií
-CREATE TABLE dim_genres_media AS
-SELECT DISTINCT
-    gs.GenreId AS dim_genreId,
-    gs.Name AS genre_name,
-    mts.MediaTypeId AS dim_mediaTypeId,
-    mts.Name AS media_type
-FROM GENRE_STAGING gs
-JOIN MEDIATYPE_STAGING mts ON gs.GenreId = mts.MediaTypeId;
-
--- Faktová tabuľka predajov
+--fact_sales
 CREATE TABLE fact_sales AS
 SELECT 
-    il.InvoiceLineId AS fact_salesId,
-    i.CustomerId AS dim_customerId,
-    il.TrackId AS dim_trackId,
-    CAST(i.InvoiceDate AS DATE) AS sale_date,
-    dd.dim_dateId AS dateID,
-    il.UnitPrice * il.Quantity AS total_amount,
-    il.Quantity AS quantity_sold,
-    t.MediaTypeId AS media_type,
-    g.GenreId AS genre_id
-FROM INVOICELINE_STAGING il
-JOIN INVOICE_STAGING i ON il.InvoiceId = i.InvoiceId
-JOIN dim_date dd ON CAST(i.InvoiceDate AS DATE) = dd.date
-JOIN TRACK_STAGING t ON il.TrackId = t.TrackId
-JOIN GENRE_STAGING g ON t.GenreId = g.GenreId;
+    inv.InvoiceId AS fact_sales_id,
+    inv.InvoiceDate AS invoice_date,
+    inv.Total AS total_amount,
+    d.dim_dateId AS dim_dateId,
+    c.dim_customerId AS dim_customerId,
+    tr.dim_track_id AS dim_track_id,
+    g.dim_genre_id AS dim_genre_id,
+    m.dim_media_type_id AS dim_media_type_id,
+    p.dim_playlist_id AS dim_playlist_id,
+    a.dim_album_id AS dim_album_id
+FROM invoice_staging inv
+JOIN dim_date d ON CAST(inv.InvoiceDate AS DATE) = d.date
+JOIN dim_customers c ON inv.CustomerId = c.dim_customerId AND c.is_current = TRUE 
+LEFT JOIN invoiceline_staging il ON inv.InvoiceId = il.InvoiceId
+LEFT JOIN dim_track tr ON il.TrackId = tr.dim_track_id
+LEFT JOIN track_staging ts ON il.TrackId = ts.TrackId
+LEFT JOIN dim_genre g ON ts.GenreId = g.dim_genre_id
+LEFT JOIN dim_media_type m ON ts.MediaTypeId = m.dim_media_type_id
+LEFT JOIN playlisttrack_staging pts ON ts.TrackId = pts.TrackId
+LEFT JOIN dim_playlist p ON pts.PlaylistId = p.dim_playlist_id
+LEFT JOIN dim_album a ON ts.AlbumId = a.dim_album_id;
 
--- Odstránenie staging tabuliek po transformáciách
+-- Drop stagging tables
 DROP TABLE IF EXISTS CUSTOMER_STAGING;
 DROP TABLE IF EXISTS TRACK_STAGING;
 DROP TABLE IF EXISTS GENRE_STAGING;
