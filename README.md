@@ -338,7 +338,7 @@ ETL proces v Snowflake umožnil transformáciu pôvodných dát z formátu `.csv
 Tento dashboard ponúka komplexný prehľad o predajoch a správaní zákazníkov. Identifikácia trendov v predaji, obľúbených formátov médií a preferencií podľa žánrov umožňuje lepšie rozhodovanie o budúcich stratégiách.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1a0c1ab7-85b9-43cb-a2d9-2abe207f7148" alt="ERD Schema">
+  <img src="https://github.com/user-attachments/assets/311913e7-04d3-4cb8-b221-6bef88854bf4" alt="ERD Schema">
   <br>
   <em>Obrázok 3 Dashboard Chinook datasetu</em>
 </p>
@@ -351,14 +351,18 @@ Vizualizácia zobrazuje 10 krajín s najvyšším objemom predajov. Umožňuje i
 SELECT 
     c.Country AS country,
     SUM(fs.total_amount) AS total_sales
-FROM fact_sales fs
-JOIN dim_customers c ON fs.dim_customerId = c.dim_customerId
-GROUP BY c.Country
-ORDER BY total_sales DESC
+FROM 
+    fact_sales fs
+JOIN 
+    dim_customers c ON fs.dim_customerId = c.dim_customerId
+GROUP BY 
+    c.Country
+ORDER BY 
+    total_sales DESC
 LIMIT 10;
 ```
 ---
-### **Graf 2: Predaje podľa žánrov**
+### **Graf 2: TOP 5 Predaje podľa žánrov**
 Vizualizácia zobrazuje predaje rozdelené podľa jednotlivých hudobných žánrov. Pomáha identifikovať najpopulárnejšie žánre, ktoré generujú najväčšie tržby. Výstup ukazuje, aké sú preferencie zákazníkov, a môže byť využitý pri tvorbe marketingových kampaní alebo optimalizácii ponuky.
 ```sql
 SELECT 
@@ -377,12 +381,13 @@ Vizualizácia sleduje počet unikátnych zákazníkov a celkový počet transakc
 SELECT 
     d.year,
     COUNT(DISTINCT fs.dim_customerId) AS unique_customers,
-    COUNT(fs.fact_salesId) AS total_transactions
+    COUNT(fs.fact_sales_id) AS total_transactions
 FROM fact_sales fs
-JOIN dim_date d ON fs.dateID = d.dim_dateId
+JOIN dim_date d ON fs.dim_dateId = d.dim_dateId
 WHERE d.year BETWEEN YEAR(CURRENT_DATE) - 5 AND YEAR(CURRENT_DATE)
 GROUP BY d.year
 ORDER BY d.year;
+
 ```
 ---
 ### **Graf 4: Top 5 zákazníkov podľa predajov v roku 2024**
@@ -394,26 +399,29 @@ SELECT
     SUM(fs.total_amount) AS total_sales
 FROM fact_sales fs
 JOIN dim_customers c ON fs.dim_customerId = c.dim_customerId
-JOIN dim_date d ON fs.dateID = d.dim_dateId
+JOIN dim_date d ON fs.dim_dateId = d.dim_dateId  
 WHERE d.year = 2024
 GROUP BY c.full_name
 ORDER BY total_sales DESC
 LIMIT 5;
+
+
 ```
 ---
 ### **Graf 5: Predaje podľa mediálnych formátov v kvartáloch počas COVID-u (2020–2022)**
 Vizualizácia zobrazuje rozdelenie predajov podľa rôznych mediálnych formátov počas jednotlivých kvartálov rokov 2020 až 2022, čo pokrýva obdobie pandémie COVID-19. Umožňuje analyzovať preferencie zákazníkov počas tohto špecifického obdobia.
 ```sql
 SELECT 
-    d.quarter, 
-    m.media_type, 
+    d.year,
+    d.quarter,
+    m.media_type_name,
     SUM(fs.total_amount) AS total_sales
 FROM fact_sales fs
-JOIN dim_genres_media m ON fs.media_type = m.dim_mediaTypeId
-JOIN dim_date d ON fs.dateID = d.dim_dateId
+JOIN dim_date d ON fs.dim_dateId = d.dim_dateId
+JOIN dim_media_type m ON fs.dim_media_type_id = m.dim_media_type_id
 WHERE d.year BETWEEN 2020 AND 2022
-GROUP BY d.quarter, m.media_type
-ORDER BY d.quarter, m.media_type;
+GROUP BY d.year, d.quarter, m.media_type_name
+ORDER BY d.year, d.quarter, total_sales DESC;
 
 ```
 Dashboard poskytuje komplexný prehľad o kľúčových dátach, ktoré odhaľujú preferencie a správanie zákazníkov. Vizualizácie umožňujú jednoduchú interpretáciu informácií a identifikáciu dôležitých trendov. Tieto poznatky môžu byť využité na zlepšenie odporúčacích systémov a marketingových stratégií. Okrem toho pomáhajú prispôsobiť ponuku zákazníkom a zlepšiť poskytované služby.
