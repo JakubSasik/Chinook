@@ -344,8 +344,8 @@ Tento dashboard ponúka komplexný prehľad o predajoch a správaní zákazníko
 </p>
 
 ---
-### **Graf 1: Najviac hodnotené knihy (Top 10 kníh)**
-Vizualizácia zobrazuje 10 krajín s najvyšším objemom predajov. Umožňuje identifikovať najvýznamnejšie trhy a zameranie sa na ne v marketingových alebo predajných stratégiách. Graf jasne ukazuje, ktoré krajiny generujú najväčší objem predajov, čo môže byť užitočné pri plánovaní distribúcie a lokalizácie produktov.
+### **Graf 1: Predaje podľa krajín – Top 10 **
+Vizualizácia odhaľuje 10 krajín s najväčším objemom predajov. Pomáha identifikovať kľúčové trhy, na ktoré sa môže sústrediť marketingová a predajná stratégia. Graf prehľadne zobrazuje krajiny s najväčším predajom, čo je užitočné pri plánovaní distribúcie a prispôsobovaní produktov pre konkrétne trhy.
 
 ```sql
 SELECT 
