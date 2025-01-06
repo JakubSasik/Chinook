@@ -63,12 +63,13 @@ Surové dáta sú usporiadané v relačnom modeli, ktorý je znázornený na ent
 # 2.Dimenzonálny model
 Navrhnutý bol hviezdicový model, pre efektívnu analýzu kde centrálny bod predstavuje faktová tabuľka `fact_sales`, ktorá je prepojená s nasledujúcimi dimenziami:
 
-- `Dim_Track`: Obsahuje informácie o skladbách, ako sú názov, dĺžka, album, interpret a podobne.
-- `Dim_Genre`: Obsahuje demografické údaje o používateľoch, ako sú vekové kategórie, pohlavie, povolanie a vzdelanie.
-- `Dim_Date`: Zahrňuje informácie o dátumoch hodnotení ako deň, mesiac, rok, štvrťrok.
-- `Dim_Time`: Obsahuje podrobné časové údaje hodina, AM/PM.
-- `Dim_Customer`: Obsahuje údaje o zákazníkoch, ako sú meno, krajina, pohlavie, typ predplatného a ďalšie.
-- `Dim_MediaType`: Obsahuje informácie o type média, ako je MP3, WAV, atď.
+- `dim_track`: Obsahuje informácie o skladbách, ako sú názov, dĺžka, album, interpret a podobne.
+- `dim_genre`: Obsahuje informácie o žánroch skladieb.
+- `dim_date`: Zahrňuje informácie o dátumoch hodnotení ako deň, mesiac, rok, štvrťrok.
+- `dim_customer`: Obsahuje údaje o zákazníkoch, ako sú meno, krajina, email a ďalšie.
+- `dim_media_type`: Obsahuje informácie o type média, ako je MP3, WAV, atď.
+- `dim album`: Obsahuje názov album a meno tvorca albumu.
+- `dim_playlist`: Obsahuje názov playlistu.
   
 Štruktúra hviezdicového modelu je znázornená na diagrame nižšie. Diagram ukazuje prepojenia medzi faktovou tabuľkou a dimenziami, čo zjednodušuje pochopenie a implementáciu modelu.
 <p align="center">
